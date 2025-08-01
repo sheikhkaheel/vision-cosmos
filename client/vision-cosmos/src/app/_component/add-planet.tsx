@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import VoiceToText from "./voice-input";
+import VoiceToText from "./telescope-controller";
 import { useGeolocation } from "./get-location";
 
 interface AddPlanetProps {

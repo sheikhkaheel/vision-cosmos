@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import AddPlanet from "./_component/add-planet";
-import VoiceToTextRecorder from "./_component/voice-input";
+import TelescopeController from "./_component/telescope-controller";
 import { useGeolocation } from "./_component/get-location";
 
 export default function Home() {
@@ -17,7 +17,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen px-4 flex justify-center items-center py-10 bg-gradient-to-b from-black to-gray-900 text-white">
-      <VoiceToTextRecorder
+      <TelescopeController
         location={location}
         getLocation={getLocation}
         error={error}

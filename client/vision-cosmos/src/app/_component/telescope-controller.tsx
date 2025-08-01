@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Mic, MicOff, Send, Trash2, Volume2, Keyboard } from "lucide-react";
+import { Mic, MicOff, Send, Trash2, Keyboard } from "lucide-react";
 
 declare global {
   interface Window {
@@ -16,7 +16,7 @@ interface Props {
   error: string | null;
 }
 
-const VoiceToTextRecorder: React.FC<Props> = ({
+const TelescopeController: React.FC<Props> = ({
   location,
   getLocation,
   error,
@@ -25,6 +25,7 @@ const VoiceToTextRecorder: React.FC<Props> = ({
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTextMode, setIsTextMode] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const VoiceToTextRecorder: React.FC<Props> = ({
       };
 
       recognitionRef.current.onerror = (event: any) => {
-        console.error("Speech recognition error:", event.error);
+        setApiError("Speech recognition error: " + event.error);
         setIsRecording(false);
       };
 
@@ -66,14 +67,17 @@ const VoiceToTextRecorder: React.FC<Props> = ({
 
   const moveTelescope = async () => {
     if (!location) {
-      alert("📍 Location required! Please allow location access.");
-      getLocation();
+      setApiError("Location required! Please allow location access.");
       return;
     }
 
     setIsLoading(true);
+    setApiError(null);
+
+    console.log("Input =>", text, location);
+
     try {
-      const res = await fetch("/api/planet", {
+      const res = await fetch("/api/celesial-body", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planet: text, location }),
@@ -83,16 +87,16 @@ const VoiceToTextRecorder: React.FC<Props> = ({
       setIsLoading(false);
 
       if (data.error) {
-        alert("❌ " + data.error);
+        setApiError(data.error);
       }
-    } catch (err) {
-      console.error("API Error:", err);
+    } catch (err: any) {
+      setApiError("API Error: " + (err.message || "Something went wrong"));
       setIsLoading(false);
     }
   };
 
   const clearText = () => setText("");
-  const toggleInputMode = () => setIsTextMode(!isTextMode);
+  const toggleInputMode = () => setIsTextMode((prev) => !prev);
 
   return (
     <div className="max-w-xl mx-auto p-8 mt-10 bg-zinc-900/80 backdrop-blur-lg border border-white/10 text-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.45)] animate-fade-in">
@@ -158,14 +162,14 @@ const VoiceToTextRecorder: React.FC<Props> = ({
           onClick={toggleInputMode}
           className="px-4 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-xl text-white flex items-center justify-center"
         >
-          <Keyboard size={20} />
+          {isTextMode ? <Mic size={20} /> : <Keyboard size={20} />}
         </button>
       </div>
 
-      <div className="mt-6 text-center">
+      <div className="mt-6 space-y-2 text-center text-sm">
         {!location ? (
-          <div className="text-sm text-red-400">
-            📍 Location not available.{" "}
+          <div className="text-red-400">
+            Location not available.
             <button
               onClick={getLocation}
               className="underline text-blue-400 hover:text-blue-300 transition"
@@ -174,15 +178,15 @@ const VoiceToTextRecorder: React.FC<Props> = ({
             </button>
           </div>
         ) : (
-          <div className="text-sm text-green-400">
+          <div className="text-green-400">
             🌐 Lat: {location.latitude.toFixed(3)}, Lon:{" "}
             {location.longitude.toFixed(3)}
           </div>
         )}
 
-        {error && (
-          <div className="text-sm text-red-500 mt-2 font-semibold">
-            ⚠️ {error}
+        {(error || apiError) && !location && (
+          <div className="bg-red-500/10 border border-red-500 text-red-300 px-4 py-2 rounded-xl">
+            ⚠️ {error || apiError}
           </div>
         )}
       </div>
@@ -190,4 +194,4 @@ const VoiceToTextRecorder: React.FC<Props> = ({
   );
 };
 
-export default VoiceToTextRecorder;
+export default TelescopeController;

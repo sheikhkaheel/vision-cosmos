@@ -1,5 +1,5 @@
 // pages/api/planet.ts
-import { fork, spawn } from "child_process";
+import { spawn } from "child_process";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(

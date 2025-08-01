@@ -16,23 +16,23 @@ def get_first_available_port():
 def move_telescope(ra, dec):
     port = get_first_available_port()
     if not port:
-        print("❌ No port available. Exiting.")
+        print("No port available. Exiting.")
         return "No serial port available"
 
     print(f"Using port: {port}")
     hc = NexStarHandControl(port)
 
     if not hc.is_connected():
-        print("❌ Failed to connect to telescope.")
+        print("Failed to connect to telescope.")
         return "Telescope connection failed"
 
-    print("✅ Connected Successfully")
+    print("Connected Successfully")
 
     try:
-        print(f"🧭 Moving to Ra: {ra:.2f}°, Dec: {dec:.2f}°")
+        print(f"Moving to Ra: {ra:.2f}°, Dec: {dec:.2f}°")
         hc.goto_ra_dec(ra, dec)
     except Exception as e:
-        print(f"❌ Error sending move command: {e}")
+        print(f"Error sending move command: {e}")
         return f"Error sending move command: {e}"
 
     return "Move command sent successfully"
@@ -46,6 +46,6 @@ def move_telescope(ra, dec):
 #     success = move_telescope(test_ra, test_dec)
 
 #     if success:
-#         print("✅ Move command sent successfully.")
+#         print("Move command sent successfully.")
 #     else:
-#         print("❌ Failed to move telescope.")
+#         print("Failed to move telescope.")
