@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "vision-cosmos-mcp-server": {
+      "type": "stdio",
+      "command": "npm",
+      "args": ["run", "server"],
+      "cwd": "${workspaceFolder}/mcp-server",
+      "dev": {
+        "watch": "/build/**/*/.js",
+        "debug": {
+          "type": "node"
+        }
+      }
+    }
+  },
+  "inputs": []
+}

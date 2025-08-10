@@ -1,21 +1,63 @@
 #!/usr/bin/env python3
-from flask import Flask, jsonify
-from telescope import move_telescope
+from flask import Flask, jsonify, request
+from telescope import move_telescope ,get_first_available_port
+from nexstar_control.device import NexStarHandControl 
 
 app = Flask(__name__)
 
-@app.route("/<ra>/<dec>", methods=['GET', 'POST'])
-def get_ra_and_dec(ra, dec):
+@app.route("/gotoRaDec", methods=['GET', 'POST'])
+def move_to_ra_and_dec():
     try:
-        ra = round(float(ra), 2)
-        dec = round(float(dec), 2)
-        print("CO ORDINATES =>", ra, dec)
-
-        result = move_telescope(ra=ra, dec=dec)
-
-        return jsonify({"success": True, "message": result})
+        data = request.get_json(force=True)  # Parses JSON body into a Python dict
+        ra = data.get('ra')
+        dec = data.get('dec')
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        print(hc)
+        hc.goto_ra_dec(ra, dec)
+        return jsonify({"success": True})
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/gotoRaDecPrecise", methods=['GET', 'POST'])
+def move_to_ra_and_dec__precise():
+    try:
+        data = request.get_json(force=True)  # Parses JSON body into a Python dict
+        ra = data.get('ra')
+        dec = data.get('dec')
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        print(hc)
+        hc.goto_ra_dec_precise(ra, dec)
+        return jsonify({"success": True})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/getRaDec", methods=['GET', 'POST'])
+def get_position_ra_dec():
+    try:
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        print(hc)
+        position = hc.get_position_ra_dec()
+        return jsonify({"ra": position[0], "dec": position[1]})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/getRaDecPrecise", methods=['GET', 'POST'])
+def get_position_ra_dec_precise():
+    try:
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        print(hc)
+        position = hc.get_position_ra_dec_precise()
+        return jsonify({"ra": position[0], "dec": position[1]})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
     print("Starting server on http://localhost:4000")

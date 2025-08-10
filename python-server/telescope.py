@@ -11,15 +11,23 @@ def get_first_available_port():
         if "USB" in port.device or "COM" in port.device:
             return port.device
 
+    available_port = ports[0].device
+
+    if not available_port:
+        print("No port available. Exiting.")
+        return "No serial port available"
+
+    print(f"Using port: {available_port}")
+
+    # hc = NexStarHandControl(port)
     return ports[0].device
+    # return NexStarHandControl(port)
 
 def move_telescope(ra, dec):
     port = get_first_available_port()
     if not port:
         print("No port available. Exiting.")
         return "No serial port available"
-
-    print(f"Using port: {port}")
     hc = NexStarHandControl(port)
 
     if not hc.is_connected():
