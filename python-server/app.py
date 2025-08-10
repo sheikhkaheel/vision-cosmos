@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, jsonify, request
-from telescope import move_telescope ,get_first_available_port
+from telescope import get_first_available_port
 from nexstar_control.device import NexStarHandControl 
 
 app = Flask(__name__)
