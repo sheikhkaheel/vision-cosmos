@@ -19,6 +19,8 @@ const knownPlanets = [
   "moon",
 ];
 
+// Get Ra/Dec from AstronomyApi
+
 export async function getRaAndDec(
   planet: string,
   location: Location
@@ -88,6 +90,8 @@ export async function getRaAndDec(
   }
 }
 
+// Goto Ra/Dec & Azm/Alt Functions
+
 export async function move_to_ra_and_dec(
   ra: number,
   dec: number
@@ -131,6 +135,51 @@ export async function move_precise_to_ra_and_dec(
   }
 }
 
+export async function move_to_azm_and_alt(
+  azm: number,
+  alt: number
+): Promise<{ success: boolean; message: string }> {
+  const coordinates = { azm, alt };
+
+  const result = await fetch(`http://localhost:4000/gotoAzmAlt`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(coordinates),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope moved successfully" };
+  } else {
+    return { success: false, message: "Failed to move telescope" };
+  }
+}
+
+export async function move_precise_to_azm_and_alt(
+  azm: number,
+  alt: number
+): Promise<{ success: boolean; message: string }> {
+  const coordinates = { azm, alt };
+  const result = await fetch(`http://localhost:4000/gotoAzmAltPrecise`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(coordinates),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope moved successfully" };
+  } else {
+    return { success: false, message: "Failed to move telescope" };
+  }
+}
+
+// Get Ra/Dec & Azm/Alt Functions
+
 export async function get_ra_and_dec(): Promise<{
   success: boolean;
   ra: number;
@@ -158,5 +207,363 @@ export async function get_precise_ra_and_dec(): Promise<{
     return { success: true, ra: flaskJson.ra, dec: flaskJson.dec };
   } else {
     return { success: false, ra: 0, dec: 0 };
+  }
+}
+
+export async function get_azm_and_alt(): Promise<{
+  success: boolean;
+  azm: number;
+  alt: number;
+}> {
+  const result = await fetch(`http://localhost:4000/getAzmAlt`);
+  const flaskJson = await result.json();
+
+  if (flaskJson) {
+    return { success: true, azm: flaskJson.azm, alt: flaskJson.alt };
+  } else {
+    return { success: false, azm: 0, alt: 0 };
+  }
+}
+
+export async function get_precise_azm_and_alt(): Promise<{
+  success: boolean;
+  azm: number;
+  alt: number;
+}> {
+  const result = await fetch(`http://localhost:4000/getAzmAltPrecise`);
+  const flaskJson = await result.json();
+
+  if (flaskJson) {
+    return { success: true, azm: flaskJson.azm, alt: flaskJson.alt };
+  } else {
+    return { success: false, azm: 0, alt: 0 };
+  }
+}
+
+// Slew Functions
+
+export async function slew_azm_variable(
+  rate: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/slewAzmVariable`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(rate),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+export async function slew_alt_variable(
+  rate: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/slewAltVariable`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(rate),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+export async function slew_variable(
+  azm_rate: number,
+  alt_rate: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/slewVariable`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ azm_rate, alt_rate }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+export async function slew_azm_fixed(
+  rate: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/slewAzmFixed`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(rate),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+export async function slew_alt_fixed(
+  rate: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/slewAltFixed`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(rate),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+export async function slew_fixed(
+  azm_rate: number,
+  alt_rate: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/slewFixed`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ azm_rate, alt_rate }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+export async function slew_stop(): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const result = await fetch(`http://localhost:4000/slewStop`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope slewed successfully" };
+  } else {
+    return { success: false, message: "Failed to slew telescope" };
+  }
+}
+
+// Location Functions
+
+export async function get_location(): Promise<{
+  success: boolean;
+  latitude: number;
+  longitude: number;
+}> {
+  const result = await fetch(`http://localhost:4000/getLocation`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      latitude: flaskJson.latitude,
+      longitude: flaskJson.longitude,
+    };
+  } else {
+    return { success: false, latitude: 0, longitude: 0 };
+  }
+}
+
+export async function set_location(
+  latitude: number,
+  longitude: number
+): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const result = await fetch(`http://localhost:4000/setLocation`, {
+    method: "Post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ latitude, longitude }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      message: "Successfully set the location",
+    };
+  } else {
+    return { success: false, message: "Failed to set the location" };
+  }
+}
+
+// Time Functions
+
+export async function get_time(): Promise<{ success: boolean; time: string }> {
+  const result = await fetch(`http://localhost:4000/getTime`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      time: flaskJson.time,
+    };
+  } else {
+    return { success: false, time: "" };
+  }
+}
+
+export async function set_time(
+  hour: number,
+  min: number,
+  sec: number
+): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const result = await fetch(`http://localhost:4000/setTime`, {
+    method: "Post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ hour, min, sec }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      message: "Successfully set the location",
+    };
+  } else {
+    return { success: false, message: "Failed to set the location" };
+  }
+}
+
+// Tracking Functions
+
+export async function get_tracking_mode(): Promise<{
+  success: boolean;
+  tracking_mode: string;
+}> {
+  const result = await fetch(`http://localhost:4000/getTrackingMode`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      tracking_mode: flaskJson.tracking_mode,
+    };
+  } else {
+    return { success: false, tracking_mode: "" };
+  }
+}
+
+export async function set_tracking_mode(tracking_mode: string): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const result = await fetch(`http://localhost:4000/setTrackingMode`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "applicaton/json",
+    },
+    body: JSON.stringify({ tracking_mode }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      message: "Successfully set the tracking mode",
+    };
+  } else {
+    return { success: false, message: "Failed to set the tracking mode" };
+  }
+}
+
+// Sync Functions
+
+export async function sync_ra_dec(
+  ra: number,
+  dec: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/syncRaDec`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "applicaton/json",
+    },
+    body: JSON.stringify({ ra, dec }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      message: "Successfully synced Ra/Dec mode",
+    };
+  } else {
+    return { success: false, message: "Failed to sync Ra/Dec" };
+  }
+}
+
+export async function sync_precise_ra_dec(
+  ra: number,
+  dec: number
+): Promise<{ success: boolean; message: string }> {
+  const result = await fetch(`http://localhost:4000/syncPreciseRaDec`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "applicaton/json",
+    },
+    body: JSON.stringify({ ra, dec }),
+  });
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      message: "Successfully synced Ra/Dec mode",
+    };
+  } else {
+    return { success: false, message: "Failed to sync Ra/Dec" };
+  }
+}
+
+// Stop Goto Function
+
+export async function cancel_goto_movement(): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const result = await fetch(`http://localhost:4000/cancleGotoMovement`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope stopped successfully" };
+  } else {
+    return { success: false, message: "Failed to stop telescope" };
   }
 }

@@ -7,6 +7,7 @@ import {
   getRaAndDec,
   move_to_ra_and_dec,
   move_precise_to_ra_and_dec,
+  cancel_goto_movement,
 } from "./utils/telescope.js";
 
 const server = new McpServer({
@@ -19,6 +20,7 @@ const server = new McpServer({
   },
 });
 
+// get RA/Dec from AstronomyAPI
 server.tool(
   "get_ra_and_dec_astronomyapi",
   "Get RA/DEC of a celestial body",
@@ -74,6 +76,7 @@ server.tool(
   }
 );
 
+// move telescope to specified RA/DEC
 server.tool(
   "move_to_ra_and_dec",
   "Move telescope to specified RA/DEC",
@@ -127,6 +130,7 @@ server.tool(
   }
 );
 
+// move telescope to precise RA/DEC
 server.tool(
   "move_to_ra_and_dec_precise",
   "Move telescope to precise RA/DEC",
@@ -180,6 +184,7 @@ server.tool(
   }
 );
 
+// get current RA/DEC from telescope
 server.tool(
   "get_current_ra_and_dec_from_telescope",
   "Get Telescope coordinates RA/DEC",
@@ -230,6 +235,7 @@ server.tool(
   }
 );
 
+// get precise RA/DEC from telescope
 server.tool(
   "get_current_precise_ra_and_dec_from_telescope",
   "Get Precise Telescope coordinates RA/DEC",
@@ -252,6 +258,57 @@ server.tool(
             {
               type: "text",
               text: `Error: Failed to get coordinates`,
+            },
+          ],
+        };
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${err.message}`,
+            },
+          ],
+        };
+      }
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: "An unexpected error occurred while moving the telescope.",
+          },
+        ],
+      };
+    }
+  }
+);
+
+// stop telescope movement
+server.tool(
+  "stop_telescope_movement",
+  "Cancels the current goto operation",
+  {},
+  async () => {
+    try {
+      const result = await cancel_goto_movement();
+      if (result.success) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: result.message,
+            },
+          ],
+        };
+      } else {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${result.message}`,
             },
           ],
         };

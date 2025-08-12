@@ -115,3 +115,30 @@ export async function get_precise_ra_and_dec() {
         return { success: false, ra: 0, dec: 0 };
     }
 }
+export async function handle_goto_telescope(ra, dec, isPrecise) {
+    const coordinates = { ra, dec, isPrecise };
+    const result = await fetch(`http://localhost:4000/handleGotoRaDecPrecise`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(coordinates),
+    });
+    const flaskJson = await result.json();
+    if (flaskJson.success) {
+        return { success: true, message: "Telescope moved successfully" };
+    }
+    else {
+        return { success: false, message: "Failed to move telescope" };
+    }
+}
+export async function cancel_goto_movement() {
+    const result = await fetch(`http://localhost:4000/cancleGotoMovement`);
+    const flaskJson = await result.json();
+    if (flaskJson.success) {
+        return { success: true, message: "Telescope stopped successfully" };
+    }
+    else {
+        return { success: false, message: "Failed to stop telescope" };
+    }
+}
