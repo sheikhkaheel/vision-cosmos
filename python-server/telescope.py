@@ -23,7 +23,7 @@ def get_first_available_port():
     return ports[0].device
     # return NexStarHandControl(port)
 
-def move_telescope(ra, dec):
+
     port = get_first_available_port()
     if not port:
         print("No port available. Exiting.")
@@ -44,16 +44,24 @@ def move_telescope(ra, dec):
         return f"Error sending move command: {e}"
 
     return "Move command sent successfully"
+# def decimal_to_latlon_dms(lat, lon):
+#     # Latitude
+#     lat_dir = Direction.NORTH if lat >= 0 else Direction.SOUTH
+#     lat_abs = abs(lat)
+#     lat_deg = int(lat_abs)
+#     lat_min_float = (lat_abs - lat_deg) * 60
+#     lat_min = int(lat_min_float)
+#     lat_sec = (lat_min_float - lat_min) * 60
 
+#     # Longitude
+#     lon_dir = Direction.EAST if lon >= 0 else Direction.WEST
+#     lon_abs = abs(lon)
+#     lon_deg = int(lon_abs)
+#     lon_min_float = (lon_abs - lon_deg) * 60
+#     lon_min = int(lon_min_float)
+#     lon_sec = (lon_min_float - lon_min) * 60
 
-# if __name__ == "__main__":
-#     # Test target after alignment
-#     test_ra = 8.0
-#     test_dec = 18.0
+#     lat_dms = LatitudeDMS(lat_deg, lat_min, lat_sec, lat_dir)
+#     lon_dms = LongitudeDMS(lon_deg, lon_min, lon_sec, lon_dir)
 
-#     success = move_telescope(test_ra, test_dec)
-
-#     if success:
-#         print("Move command sent successfully.")
-#     else:
-#         print("Failed to move telescope.")
+#     return lat_dms, lon_dms

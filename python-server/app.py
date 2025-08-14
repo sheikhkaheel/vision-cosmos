@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, jsonify, request
 from telescope import get_first_available_port
-from nexstar_control.device import NexStarHandControl 
+from nexstar_control.device import NexStarHandControl , LatitudeDMS, LongitudeDMS, TrackingMode
 import datetime
 
 app = Flask(__name__)
@@ -36,7 +36,7 @@ def move_to_ra_and_dec__precise():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/gotoAzmAlt", methods=['GET', 'POST'])          #! Not-Done 
+@app.route("/gotoAzmAlt", methods=['GET', 'POST'])           
 def move_to_azm_and_alt():
     try:
         data = request.get_json(force=True)  # Parses JSON body into a Python dict
@@ -50,7 +50,7 @@ def move_to_azm_and_alt():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
-@app.route("/gotoAzmAltPrecise", methods=['GET', 'POST'])    #! Not-Done
+@app.route("/gotoAzmAltPrecise", methods=['GET', 'POST'])    
 def move_to_azm_and_alt__precise():
     try:
         data = request.get_json(force=True)  # Parses JSON body into a Python dict
@@ -64,7 +64,7 @@ def move_to_azm_and_alt__precise():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
-# Get Ra/Dec Routes
+# Get Ra/Dec & Azm/Alt Routes
 
 @app.route("/getRaDec", methods=['GET', 'POST'])
 def get_position_ra_dec():
@@ -88,7 +88,7 @@ def get_position_ra_dec_precise():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/getAzmAlt", methods=['GET', 'POST'])               #! Not-Done
+@app.route("/getAzmAlt", methods=['GET', 'POST'])               
 def get_position_azm_alt():
     try:
         port = get_first_available_port()
@@ -99,7 +99,7 @@ def get_position_azm_alt():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
-@app.route("/getAzmAltPrecise", methods=['GET', 'POST'])           #! Not-Done
+@app.route("/getAzmAltPrecise", methods=['GET', 'POST'])           
 def get_position_azm_alt_precise():
     try:
         port = get_first_available_port()
@@ -113,7 +113,7 @@ def get_position_azm_alt_precise():
 
 # Slew Routes
 
-@app.route("/slewAzmVariable", methods=['GET', 'POST'])             #! Not-Done
+@app.route("/slewAzmVariable", methods=['GET', 'POST'])             
 def slew_azm():
     try:
         port = get_first_available_port()
@@ -126,7 +126,7 @@ def slew_azm():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
-@app.route("/slewAltVariable", methods=['GET', 'POST'])               #! Not-Done
+@app.route("/slewAltVariable", methods=['GET', 'POST'])               
 def slew_alt():
     try:
         port = get_first_available_port()
@@ -139,7 +139,7 @@ def slew_alt():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/slewVariable", methods=['GET', 'POST'])                      #! Not-Done
+@app.route("/slewVariable", methods=['GET', 'POST'])                      
 def slew_variable():
     try:
         port = get_first_available_port()
@@ -153,7 +153,7 @@ def slew_variable():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/slewAzmFixed", methods=['GET', 'POST'])                         #! Not-Done
+@app.route("/slewAzmFixed", methods=['GET', 'POST'])                         
 def slew_azm_fixed():
     try:
         port = get_first_available_port()
@@ -166,7 +166,7 @@ def slew_azm_fixed():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/slewAltFixed", methods=['GET', 'POST'])                           #! Not-Done
+@app.route("/slewAltFixed", methods=['GET', 'POST'])                           
 def slew_alt_fixed():
     try:
         port = get_first_available_port()
@@ -179,7 +179,7 @@ def slew_alt_fixed():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/slewFixed", methods=['GET', 'POST'])                                #! Not-Done
+@app.route("/slewFixed", methods=['GET', 'POST'])                                
 def slew_fixed():
     try:
         port = get_first_available_port()
@@ -193,7 +193,7 @@ def slew_fixed():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/slewStop", methods=['GET', 'POST'])                                  #! Not-Done
+@app.route("/slewStop", methods=['GET', 'POST'])                                  
 def slew_stop():
     try:
         port = get_first_available_port()
@@ -206,35 +206,40 @@ def slew_stop():
     
 # Location Routes
 
-@app.route("/getLocation", methods=['GET', 'POST'])                                #! Not-Done
+@app.route("/getLocation", methods=['GET', 'POST'])                                
 def get_location():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
         location = hc.get_location()
-        return jsonify({"success":True, "latitude": location[0], "longitude": location[1]})
+        latitude = location[0].to_decimal()  # or location[0].degrees
+        longitude = location[1].to_decimal() # or location[1].degrees
+        return jsonify({"success":True, "latitude": latitude, "longitude": longitude})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/setLocation", methods=['GET', 'POST'])                                 #! Not-Done
+@app.route("/setLocation", methods=['GET', 'POST'])
 def set_location():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
-        data = request.get_json(force=True)  # Parses JSON body into a Python dict
-        latitude = data.get("latitude")
-        longitude = data.get("longitude")
-        hc.set_location(latitude, longitude)
-        return jsonify({"success":True})
+        data = request.get_json(force=True)
+        latitude = float(data.get("latitude"))
+        longitude = float(data.get("longitude"))
+        # Use the built-in decimal→DMS conversions
+        lat_dms = LatitudeDMS.from_decimal(latitude)
+        lon_dms = LongitudeDMS.from_decimal(longitude)
+        hc.set_location(lat=lat_dms, lng=lon_dms)
+        return jsonify({"success": True})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
 
-# Time Route
+# Time Routes
 
-@app.route("/getTime", methods=['GET', 'POST'])                                       #! Not-Done
+@app.route("/getTime", methods=['GET', 'POST'])                                       
 def get_time():
     try:
         port = get_first_available_port()
@@ -245,59 +250,127 @@ def get_time():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/setTime", methods=['GET', 'POST'])                                        #! Not-Done
+@app.route("/setTime", methods=['GET', 'POST'])
 def set_time():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
-        data = request.get_json(force=True)  # Parses JSON body into a Python dict
-        hour = data.get("hour")
-        min = data.get("min")
-        sec = data.get("sec")
-        time_value = datetime.datetime.now().replace(hour=hour, minute=min, second=sec, microsecond=0)
-        hc.set_time(time_value)
-        return jsonify({"success":True})
+        data = request.get_json(force=True)
+        hour = int(data.get("hour"))
+        minute = int(data.get("min"))
+        second = int(data.get("sec"))
+        # Get local UTC offset automatically
+        offset = datetime.datetime.now().astimezone().utcoffset()
+        tz = datetime.timezone(offset)
+        # Create a timezone-aware datetime
+        now = datetime.datetime.now(tz).replace(
+            hour=hour,
+            minute=minute,
+            second=second,
+            microsecond=0
+        )
+        hc.set_time(now)
+        return jsonify({"success": True})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
 # Tracking Routes
 
-@app.route("/getTrackingMode", methods=['GET', 'POST'])                                   #! Not-Done
+@app.route("/getTrackingMode", methods=['GET', 'POST'])                                   
 def get_tracking_mode():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
         tracking_mode = hc.get_tracking_mode()
-        return jsonify({"success":True,"tracking_mode": tracking_mode})
+        return jsonify({"success":True,"tracking_mode": tracking_mode.name})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/setTrackingMode", methods=['GET', 'POST'])                                    #! Not-Done
+@app.route("/setTrackingMode", methods=['GET', 'POST'])
 def set_tracking_mode():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
-        data = request.get_json(force=True)  # Parses JSON body into a Python dict
-        tracking_mode = data.get("tracking_mode")
+        data = request.get_json(force=True)
+        mode_input = data.get("tracking_mode")
+        # Convert string or int to TrackingMode enum
+        if isinstance(mode_input, str):
+            tracking_mode = TrackingMode[mode_input]  # e.g. "ALT_AZ" -> TrackingMode.ALT_AZ
+        else:
+            tracking_mode = TrackingMode(mode_input)  # e.g. 1 -> TrackingMode.ALT_AZ
+        print("Tracking Mode:-", tracking_mode)
         hc.set_tracking_mode(tracking_mode)
-        return jsonify({"success":True})
+        return jsonify({"success": True})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-# Device Version Route
+# Device Routes
 
-#? Incomplete  2
+@app.route("/getDeviceVersion", methods=['GET', 'POST'])                         #! not tested                            
+def get_device_version():
+    try:
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        data = request.get_json(force=True)  # Parses JSON body into a Python dict
+        device_type = data.get("device_type")
+        device = hc.get_device_version(device_type)
+        return jsonify({"success":True, "device_version": device[0] + " " + device[1]})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
+    
+@app.route("/getDeviceModel", methods=['GET', 'POST'])                            #! not tested
+def get_device_model():
+    try:
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        device_model = hc.get_device_model()
+        return jsonify({"success":True, "device_model": device_model})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
 
-# Common Telescope Route 
+# Common Telescope Routes
 
-#? Incomplete  3
+@app.route("/isConnected", methods=['GET', 'POST'])                            #! not tested
+def is_connected():
+    try:    
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        is_connected = hc.is_connected()
+        return jsonify({"success":True, "is_connected": is_connected})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
+    
+@app.route("/isAligned", methods=['GET', 'POST'])                            #! not tested
+def is_aligned():
+    try:    
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        is_aligned = hc.is_aligned()
+        return jsonify({"success":True, "is_aligned": is_aligned})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/isGotoInProgress", methods=['GET', 'POST'])                            #! not tested
+def is_goto_in_progress():
+    try:    
+        port = get_first_available_port()
+        hc = NexStarHandControl(port)
+        is_goto_in_progress = hc.is_goto_in_progress()
+        return jsonify({"success":True, "is_goto_in_progress": is_goto_in_progress})
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 400
     
 # Sync Routes
 
-@app.route("/syncRaDec", methods=['GET', 'POST'])                                           #! Not-Done
+@app.route("/syncRaDec", methods=['GET', 'POST'])                                           
 def sync_ra_dec():
     try:
         port = get_first_available_port()
@@ -311,7 +384,7 @@ def sync_ra_dec():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/syncPreciseRaDec", methods=['GET', 'POST'])                                      #! Not-Done
+@app.route("/syncPreciseRaDec", methods=['GET', 'POST'])                                      
 def sync_precise_ra_dec():
     try:
         port = get_first_available_port()

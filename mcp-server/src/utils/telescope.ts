@@ -178,6 +178,20 @@ export async function move_precise_to_azm_and_alt(
   }
 }
 
+export async function cancel_goto_movement(): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const result = await fetch(`http://localhost:4000/cancleGotoMovement`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, message: "Telescope stopped successfully" };
+  } else {
+    return { success: false, message: "Failed to stop telescope" };
+  }
+}
+
 // Get Ra/Dec & Azm/Alt Functions
 
 export async function get_ra_and_dec(): Promise<{
@@ -455,10 +469,10 @@ export async function set_time(
   if (flaskJson.success) {
     return {
       success: true,
-      message: "Successfully set the location",
+      message: "Successfully set the time",
     };
   } else {
-    return { success: false, message: "Failed to set the location" };
+    return { success: false, message: "Failed to set the time" };
   }
 }
 
@@ -552,18 +566,87 @@ export async function sync_precise_ra_dec(
   }
 }
 
-// Stop Goto Function
+// Device Tools                                                                     //! Not Tested From Here
 
-export async function cancel_goto_movement(): Promise<{
-  success: boolean;
-  message: string;
-}> {
-  const result = await fetch(`http://localhost:4000/cancleGotoMovement`);
+export async function get_device_version(
+  device_type: string
+): Promise<{ success: boolean; version: string }> {
+  const result = await fetch(`http://localhost:4000/getDeviceVersion`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ device_type }),
+  });
   const flaskJson = await result.json();
 
   if (flaskJson.success) {
-    return { success: true, message: "Telescope stopped successfully" };
+    return {
+      success: true,
+      version: flaskJson.device_version,
+    };
   } else {
-    return { success: false, message: "Failed to stop telescope" };
+    return { success: false, version: "" };
+  }
+}
+
+export async function get_device_model(): Promise<{
+  success: boolean;
+  model: string;
+}> {
+  const result = await fetch(`http://localhost:4000/getDeviceModel`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return {
+      success: true,
+      model: flaskJson.device_model,
+    };
+  } else {
+    return { success: false, model: "" };
+  }
+}
+
+// Common Telescope Tools
+
+export async function is_connected(): Promise<{
+  success: boolean;
+  connected: boolean;
+}> {
+  const result = await fetch(`http://localhost:4000/isConnected`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, connected: flaskJson.is_connected };
+  } else {
+    return { success: false, connected: false };
+  }
+}
+
+export async function is_aligned(): Promise<{
+  success: boolean;
+  aligned: boolean;
+}> {
+  const result = await fetch(`http://localhost:4000/isAligned`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, aligned: flaskJson.is_aligned };
+  } else {
+    return { success: false, aligned: false };
+  }
+}
+
+export async function is_goto_in_progress(): Promise<{
+  success: boolean;
+  goto_in_progress: boolean;
+}> {
+  const result = await fetch(`http://localhost:4000/isGotoInProgress`);
+  const flaskJson = await result.json();
+
+  if (flaskJson.success) {
+    return { success: true, goto_in_progress: flaskJson.is_goto_in_progress };
+  } else {
+    return { success: false, goto_in_progress: false };
   }
 }
