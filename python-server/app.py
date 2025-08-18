@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, jsonify, request
 from telescope import get_first_available_port
-from nexstar_control.device import NexStarHandControl , LatitudeDMS, LongitudeDMS, TrackingMode
+from nexstar_control.device import NexStarHandControl , LatitudeDMS, LongitudeDMS, TrackingMode, DeviceType
 import datetime
 
 app = Flask(__name__)
@@ -94,7 +94,8 @@ def get_position_azm_alt():
         port = get_first_available_port()
         hc = NexStarHandControl(port)
         position = hc.get_position_azm_alt()
-        return jsonify({"ra": position[0], "dec": position[1]})
+        print("Posoiton =>",position, position[0])
+        return jsonify({"azm": position[0], "alt": position[1]})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
@@ -105,7 +106,7 @@ def get_position_azm_alt_precise():
         port = get_first_available_port()
         hc = NexStarHandControl(port)
         position = hc.get_position_azm_alt_precise()
-        return jsonify({"ra": position[0], "dec": position[1]})
+        return jsonify({"azm": position[0], "alt": position[1]})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
@@ -119,7 +120,9 @@ def slew_azm():
         port = get_first_available_port()
         hc = NexStarHandControl(port)
         data = request.get_json(force=True)  # Parses JSON body into a Python dict
-        rate = data.get("rate")
+        print("data =>",data)
+        rate = int(data.get("rate"))
+        print("Rate =>", rate)
         hc.slew_azm_variable(rate)
         return jsonify({"success":True})
     except Exception as e:
@@ -309,33 +312,43 @@ def set_tracking_mode():
     
 # Device Routes
 
-@app.route("/getDeviceVersion", methods=['GET', 'POST'])                         #! not tested                            
+# DeviceType.AZM_RA_MOTOR
+# DeviceType.ALT_DEC_MOTOR
+# DeviceType.GPS_UNIT
+# DeviceType.RTC
+
+
+@app.route("/getDeviceVersion", methods=['GET', 'POST'])                                                     
 def get_device_version():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
-        data = request.get_json(force=True)  # Parses JSON body into a Python dict
-        device_type = data.get("device_type")
-        device = hc.get_device_version(device_type)
-        return jsonify({"success":True, "device_version": device[0] + " " + device[1]})
+        # data = request.get_json(force=True)  # Parses JSON body into a Python dict
+        # Get the hand controller version
+        print("List =>",list(DeviceType))
+        major, minor = hc.get_device_version(DeviceType.AZM_RA_MOTOR)
+        print(f"Hand Controller Firmware: {major}.{minor}")
+        version = f"{major}.{minor}"
+        return jsonify({"success":True, "device_version": version})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/getDeviceModel", methods=['GET', 'POST'])                            #! not tested
+@app.route("/getDeviceModel", methods=['GET', 'POST'])                            
 def get_device_model():
     try:
         port = get_first_available_port()
         hc = NexStarHandControl(port)
         device_model = hc.get_device_model()
-        return jsonify({"success":True, "device_model": device_model})
+        print("Device Model", device_model)
+        return jsonify({"success":True, "device_model_name": device_model.name, "device_model_value":device_model.value})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
 # Common Telescope Routes
 
-@app.route("/isConnected", methods=['GET', 'POST'])                            #! not tested
+@app.route("/isConnected", methods=['GET', 'POST'])                            
 def is_connected():
     try:    
         port = get_first_available_port()
@@ -346,7 +359,7 @@ def is_connected():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
     
-@app.route("/isAligned", methods=['GET', 'POST'])                            #! not tested
+@app.route("/isAligned", methods=['GET', 'POST'])                            
 def is_aligned():
     try:    
         port = get_first_available_port()
@@ -357,7 +370,7 @@ def is_aligned():
         print("Error:", e)
         return jsonify({"error": str(e)}), 400
 
-@app.route("/isGotoInProgress", methods=['GET', 'POST'])                            #! not tested
+@app.route("/isGotoInProgress", methods=['GET', 'POST'])                            
 def is_goto_in_progress():
     try:    
         port = get_first_available_port()

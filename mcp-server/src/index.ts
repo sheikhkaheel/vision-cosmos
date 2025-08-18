@@ -33,6 +33,7 @@ import {
   is_aligned,
   is_goto_in_progress,
 } from "./utils/telescope.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
 const server = new McpServer({
   name: "vision-cosmos",
@@ -484,7 +485,7 @@ server.tool(
           content: [
             {
               type: "text",
-              text: `Ra:${result.azm} And Dec:${result.alt}`,
+              text: `Azm:${result.azm} And Alt:${result.alt}`,
             },
           ],
         };
@@ -535,7 +536,7 @@ server.tool(
           content: [
             {
               type: "text",
-              text: `Ra:${result.azm} And Dec:${result.alt}`,
+              text: `Azm:${result.azm} And Alt:${result.alt}`,
             },
           ],
         };
@@ -1414,12 +1415,10 @@ server.tool(
 server.tool(
   "get_device_version",
   "Returns the device version",
-  {
-    device_type: z.string().describe("The type of device to get the version"),
-  },
-  async ({ device_type }) => {
+  {},
+  async () => {
     try {
-      const data = await get_device_version(device_type);
+      const data = await get_device_version();
       if (data) {
         return {
           content: [
@@ -1472,7 +1471,7 @@ server.tool("get_device_model", "Returns the device model", {}, async () => {
         content: [
           {
             type: "text",
-            text: `Device Model: ${data.model}`,
+            text: `Device Model Name: ${data.model_name}, Device Model Value: ${data.model_value}`,
           },
         ],
       };
@@ -1663,9 +1662,13 @@ server.tool(
   }
 );
 
+let id = 0;
+
 // Main function
 async function main() {
-  const transport = new StdioServerTransport();
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: () => String(++id),
+  });
   await server.connect(transport);
   console.error("Vision Cosmos MCP Server running on stdio");
 }

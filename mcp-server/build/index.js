@@ -402,7 +402,7 @@ server.tool("get_current_azm_and_alt_from_telescope", "Get Telescope coordinates
                 content: [
                     {
                         type: "text",
-                        text: `Ra:${result.azm} And Dec:${result.alt}`,
+                        text: `Azm:${result.azm} And Alt:${result.alt}`,
                     },
                 ],
             };
@@ -448,7 +448,7 @@ server.tool("get_current_precise_azm_and_alt_from_telescope", "Get Precise Teles
                 content: [
                     {
                         type: "text",
-                        text: `Ra:${result.azm} And Dec:${result.alt}`,
+                        text: `Azm:${result.azm} And Alt:${result.alt}`,
                     },
                 ],
             };
@@ -1231,11 +1231,9 @@ server.tool("sync_precise_ra_and_dec", "Syncs the telescope to the specified rig
 });
 //? Device Information Tools
 // Get device Version
-server.tool("get_device_version", "Returns the device version", {
-    device_type: z.string().describe("The type of device to get the version"),
-}, async ({ device_type }) => {
+server.tool("get_device_version", "Returns the device version", {}, async () => {
     try {
-        const data = await get_device_version(device_type);
+        const data = await get_device_version();
         if (data) {
             return {
                 content: [
@@ -1287,7 +1285,7 @@ server.tool("get_device_model", "Returns the device model", {}, async () => {
                 content: [
                     {
                         type: "text",
-                        text: `Device Model: ${data.model}`,
+                        text: `Device Model Name: ${data.model_name}, Device Model Value: ${data.model_value}`,
                     },
                 ],
             };
@@ -1473,3 +1471,4 @@ main().catch((error) => {
     console.error("Fatal error in main():", error);
     process.exit(1);
 });
+export { server };

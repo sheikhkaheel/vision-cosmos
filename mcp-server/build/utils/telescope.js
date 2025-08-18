@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { api } from "./global.js";
 dotenv.config({ debug: false });
 const knownPlanets = [
     "mercury",
@@ -34,8 +35,8 @@ export async function getRaAndDec(planet, location) {
         if (knownPlanets.includes(planetKey)) {
             // Use /bodies/positions endpoint
             const url = `https://api.astronomyapi.com/api/v2/bodies/positions/${planetKey}?latitude=${location.latitude}&longitude=${location.longitude}&elevation=10&from_date=${today}&to_date=${today}&time=12:00:00`;
-            response = await fetch(url, { headers: authHeader });
-            data = await response.json();
+            data = await api(url, { headers: authHeader });
+            // data = await response.json();
             const pos = data?.data?.table?.rows?.[0]?.cells?.[0]?.position?.equatorial;
             ra = parseFloat(pos?.rightAscension?.hours);
             dec = parseFloat(pos?.declination?.degrees);
@@ -43,8 +44,8 @@ export async function getRaAndDec(planet, location) {
         else {
             // Fuzzy search for unknown body
             const url = `https://api.astronomyapi.com/api/v2/search?term=${encodeURIComponent(planetKey)}&match_type=fuzzy`;
-            response = await fetch(url, { headers: authHeader });
-            data = await response.json();
+            data = await api(url, { headers: authHeader });
+            // data = await response.json();
             const match = data?.data?.[0];
             ra = parseFloat(match?.position?.equatorial?.rightAscension?.hours);
             dec = parseFloat(match?.position?.equatorial?.declination?.degrees);
@@ -189,7 +190,7 @@ export async function slew_azm_variable(rate) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(rate),
+        body: JSON.stringify({ rate }),
     });
     const flaskJson = await result.json();
     if (flaskJson.success) {
@@ -205,7 +206,7 @@ export async function slew_alt_variable(rate) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(rate),
+        body: JSON.stringify({ rate }),
     });
     const flaskJson = await result.json();
     if (flaskJson.success) {
@@ -237,7 +238,7 @@ export async function slew_azm_fixed(rate) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(rate),
+        body: JSON.stringify({ rate }),
     });
     const flaskJson = await result.json();
     if (flaskJson.success) {
@@ -253,7 +254,7 @@ export async function slew_alt_fixed(rate) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(rate),
+        body: JSON.stringify({ rate }),
     });
     const flaskJson = await result.json();
     if (flaskJson.success) {
@@ -429,14 +430,8 @@ export async function sync_precise_ra_dec(ra, dec) {
     }
 }
 // Device Tools                                                                     //! Not Tested From Here
-export async function get_device_version(device_type) {
-    const result = await fetch(`http://localhost:4000/getDeviceVersion`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ device_type }),
-    });
+export async function get_device_version() {
+    const result = await fetch(`http://localhost:4000/getDeviceVersion`);
     const flaskJson = await result.json();
     if (flaskJson.success) {
         return {
@@ -454,11 +449,12 @@ export async function get_device_model() {
     if (flaskJson.success) {
         return {
             success: true,
-            model: flaskJson.device_model,
+            model_name: flaskJson.device_model_name,
+            model_value: flaskJson.device_model_value,
         };
     }
     else {
-        return { success: false, model: "" };
+        return { success: false, model_name: "", model_value: "" };
     }
 }
 // Common Telescope Tools

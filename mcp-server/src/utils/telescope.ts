@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { api } from "./global.js";
 dotenv.config({ debug: false });
 
 type Location = {
@@ -54,8 +55,8 @@ export async function getRaAndDec(
       // Use /bodies/positions endpoint
       const url = `https://api.astronomyapi.com/api/v2/bodies/positions/${planetKey}?latitude=${location.latitude}&longitude=${location.longitude}&elevation=10&from_date=${today}&to_date=${today}&time=12:00:00`;
 
-      response = await fetch(url, { headers: authHeader });
-      data = await response.json();
+      data = await api(url, { headers: authHeader });
+      // data = await response.json();
 
       const pos =
         data?.data?.table?.rows?.[0]?.cells?.[0]?.position?.equatorial;
@@ -66,8 +67,8 @@ export async function getRaAndDec(
       const url = `https://api.astronomyapi.com/api/v2/search?term=${encodeURIComponent(
         planetKey
       )}&match_type=fuzzy`;
-      response = await fetch(url, { headers: authHeader });
-      data = await response.json();
+      data = await api(url, { headers: authHeader });
+      // data = await response.json();
 
       const match = data?.data?.[0];
       ra = parseFloat(match?.position?.equatorial?.rightAscension?.hours);
@@ -264,7 +265,7 @@ export async function slew_azm_variable(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(rate),
+    body: JSON.stringify({ rate }),
   });
   const flaskJson = await result.json();
 
@@ -283,7 +284,7 @@ export async function slew_alt_variable(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(rate),
+    body: JSON.stringify({ rate }),
   });
   const flaskJson = await result.json();
 
@@ -322,7 +323,7 @@ export async function slew_azm_fixed(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(rate),
+    body: JSON.stringify({ rate }),
   });
   const flaskJson = await result.json();
 
@@ -341,7 +342,7 @@ export async function slew_alt_fixed(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(rate),
+    body: JSON.stringify({ rate }),
   });
   const flaskJson = await result.json();
 
@@ -568,16 +569,11 @@ export async function sync_precise_ra_dec(
 
 // Device Tools                                                                     //! Not Tested From Here
 
-export async function get_device_version(
-  device_type: string
-): Promise<{ success: boolean; version: string }> {
-  const result = await fetch(`http://localhost:4000/getDeviceVersion`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ device_type }),
-  });
+export async function get_device_version(): Promise<{
+  success: boolean;
+  version: string;
+}> {
+  const result = await fetch(`http://localhost:4000/getDeviceVersion`);
   const flaskJson = await result.json();
 
   if (flaskJson.success) {
@@ -592,7 +588,8 @@ export async function get_device_version(
 
 export async function get_device_model(): Promise<{
   success: boolean;
-  model: string;
+  model_name: string;
+  model_value: string;
 }> {
   const result = await fetch(`http://localhost:4000/getDeviceModel`);
   const flaskJson = await result.json();
@@ -600,10 +597,11 @@ export async function get_device_model(): Promise<{
   if (flaskJson.success) {
     return {
       success: true,
-      model: flaskJson.device_model,
+      model_name: flaskJson.device_model_name,
+      model_value: flaskJson.device_model_value,
     };
   } else {
-    return { success: false, model: "" };
+    return { success: false, model_name: "", model_value: "" };
   }
 }
 
