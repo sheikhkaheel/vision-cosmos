@@ -1,0 +1,192 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_ra_and_dec_astronomyapi",
+        "description": "Get RA/DEC of a celestial body",
+        "parameters": {
+          "type": "object",
+          "required": ["planet", "location"],
+          "properties": {
+            "planet": {
+              "type": "string",
+              "description": "Name of the celestial body"
+            },
+            "location": {
+              "type": "object",
+              "required": ["latitude", "longitude"],
+              "properties": {
+                "latitude": {
+                  "type": "number",
+                  "description": "Latitude of the observer"
+                },
+                "longitude": {
+                  "type": "number",
+                  "description": "Longitude of the observer"
+                }
+              }
+            }
+          }
+        },
+        "returns": {
+          "type": "object",
+          "properties": {
+            "ra": {
+              "type": "number",
+              "description": "Right Ascension in hours"
+            },
+            "dec": {
+              "type": "number",
+              "description": "Declination in degrees"
+            }
+          },
+          "description": "Returns RA and DEC coordinates of the celestial body"
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "move_to_ra_and_dec",
+        "description": "Move telescope to specified RA/DEC",
+        "endpoint": "http://localhost:4000/gotoRaDec",
+        "method": "POST",
+        "parameters": {
+          "type": "object",
+          "required": ["ra", "dec"],
+          "properties": {
+            "ra": {
+              "type": "number",
+              "description": "Right Ascension in hours"
+            },
+            "dec": {
+              "type": "number",
+              "description": "Declination in degrees"
+            }
+          }
+        },
+        "returns": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "Success or error message from telescope"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "move_to_ra_and_dec_precise",
+        "description": "Move telescope to precise RA/DEC",
+        "method": "POST",
+        "parameters": {
+          "type": "object",
+          "required": ["ra", "dec"],
+          "properties": {
+            "ra": {
+              "type": "number",
+              "description": "Right Ascension in hours"
+            },
+            "dec": {
+              "type": "number",
+              "description": "Declination in degrees"
+            }
+          }
+        },
+        "returns": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "Success or error message from telescope"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "move_to_azm_and_alt",
+        "description": "Move telescope to specified Azimuth/Altitude",
+        "parameters": {
+          "type": "object",
+          "required": ["azm", "alt"],
+          "properties": {
+            "azm": {
+              "type": "number",
+              "description": "Azimuth in degrees"
+            },
+            "alt": {
+              "type": "number",
+              "description": "Altitude in degrees"
+            }
+          }
+        },
+        "returns": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "Success or error message from telescope"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "move_to_azm_and_alt_precise",
+        "description": "Move telescope to precise Azimuth/Altitude",
+        "parameters": {
+          "type": "object",
+          "required": ["azm", "alt"],
+          "properties": {
+            "azm": {
+              "type": "number",
+              "description": "Azimuth in degrees"
+            },
+            "alt": {
+              "type": "number",
+              "description": "Altitude in degrees"
+            }
+          }
+        },
+        "returns": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "Success or error message from telescope"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "stop_telescope_movement",
+        "description": "Cancel current telescope movement",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        },
+        "returns": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "Success or error message from telescope"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
