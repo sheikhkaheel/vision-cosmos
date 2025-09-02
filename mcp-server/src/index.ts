@@ -58,9 +58,9 @@ server.tool(
   },
   async ({ planet, location }) => {
     try {
-      if (!process.env.APP_ID || !process.env.APP_SECRET) {
-        throw new Error("Missing API credentials");
-      }
+      // if (!process.env.APP_ID || !process.env.APP_SECRET) {
+      //   throw new Error("Missing API credentials");
+      // }
 
       const result = await getRaAndDec(planet, location);
       if (result.ra === 0 && result.dec === 0) {
@@ -100,6 +100,7 @@ server.tool(
     }
   }
 );
+console.error("Tool registered: get_ra_and_dec_astronomyapi");
 
 //? Move Tools
 // Move telescope to specified RA/DEC
@@ -1662,18 +1663,30 @@ server.tool(
   }
 );
 
-let id = 0;
+// let id = 0;
 
-// Main function
+// // Main function
+// async function main() {
+//   const transport = new StreamableHTTPServerTransport({
+//     sessionIdGenerator: () => String(++id),
+//   });
+//   await server.connect(transport);
+//   console.error("Vision Cosmos MCP Server running on stdio");
+// }
+
+// main().catch((error) => {
+//   console.error("Fatal error in main():", error);
+//   process.exit(1);
+// });
+
 async function main() {
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: () => String(++id),
-  });
-  await server.connect(transport);
-  console.error("Vision Cosmos MCP Server running on stdio");
+  const transport = new StdioServerTransport();
+  await server.connect(transport); // must come first
+  process.stdin.resume(); // keep pipe open
+  console.log("Vision Cosmos MCP Server running on stdio");
 }
 
-main().catch((error) => {
-  console.error("Fatal error in main():", error);
+main().catch((err) => {
+  console.error("Fatal error:", err);
   process.exit(1);
 });

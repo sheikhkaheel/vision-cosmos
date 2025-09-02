@@ -8,7 +8,7 @@
   },
   "scripts": {
     "server:build:watch": "tsc --watch",
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx src/index.ts",
     "client": "tsx src/ollamaClient.ts",
     "build": "tsc",
     "server": "node build/index.js",
